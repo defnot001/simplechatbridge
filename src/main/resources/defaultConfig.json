@@ -1,0 +1,5 @@
+{
+  "botToken": "your bot token here",
+  "webhookUrl": "your discord webhook url here",
+  "discordChannelID": "your discord channel id here"
+}
