@@ -36,11 +36,10 @@ class MessageReceivedListener(private val server: MinecraftServer) : ListenerAda
         val attachmentMessage = if (message.hasMultipleAttachments) "multiple attachments" else "an attachment"
 
         server.execute {
-            server.playerList.broadcastMessage(
-                TextComponent("$author posted $attachmentMessage in Discord.")
+            server.playerList.broadcastSystemMessage(
+                Component.literal("$author posted $attachmentMessage in Discord.")
                     .withStyle(ChatFormatting.GRAY),
-                ChatType.CHAT,
-                Util.NIL_UUID
+                false
             )
         }
     }
