@@ -6,6 +6,7 @@ import club.minnced.discord.webhook.send.AllowedMentions
 import com.mojang.logging.LogUtils
 import io.github.defnot001.config.Config
 import io.github.defnot001.discordbot.MessageReceivedListener
+import io.github.defnot001.minecraft.GameMessageHandler
 import io.github.defnot001.minecraft.registerStateChangeEvents
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -48,6 +49,7 @@ object SimpleChatbridge : ModInitializer {
 		}
 
 		registerStateChangeEvents()
+		GameMessageHandler.registerChatMessageEventListener()
 
 		ServerLifecycleEvents.SERVER_STOPPING.register {
 			LOGGER.info("Stopping Discord Bot...")

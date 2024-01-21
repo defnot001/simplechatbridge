@@ -19,7 +19,10 @@ public abstract class MixinServerPlayer extends Player {
         super(level, blockPos, f, gameProfile);
     }
 
-    @Inject(method = "die", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V"))
+    @Inject(
+        method = "die",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V")
+    )
     private void die(DamageSource damageSource, CallbackInfo ci) {
         GameMessageHandler.INSTANCE.postSystemMessageToDiscord(this.getCombatTracker().getDeathMessage().getString() + ".");
     }
