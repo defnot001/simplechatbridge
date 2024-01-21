@@ -3,7 +3,7 @@ package io.github.defnot001.config
 import com.google.gson.Gson
 import io.github.defnot001.LOGGER
 import io.github.defnot001.MOD_ID
-import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.FabricLoader
 import java.io.IOException
 import java.nio.file.NoSuchFileException
 import java.nio.file.Files
