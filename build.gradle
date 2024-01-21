@@ -1,7 +1,8 @@
 plugins {
 	id 'fabric-loom' version '1.5-SNAPSHOT'
 	id 'maven-publish'
-  id "org.jetbrains.kotlin.jvm" version "1.9.22"
+  	id "org.jetbrains.kotlin.jvm" version "1.9.22"
+	id "com.modrinth.minotaur" version "2.+"
 }
 
 version = project.mod_version
@@ -46,6 +47,16 @@ dependencies {
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 	implementation(include "net.dv8tion:JDA:${project.jda_version}")
 	implementation(include "club.minnced:discord-webhooks:${project.property("discord-webhooks_version")}")
+
+	include "net.sf.trove4j:trove4j:3.0.3"
+	include 'org.apache.commons:commons-collections4:4.4'
+	include 'com.neovisionaries:nv-websocket-client:2.14'
+	include 'com.squareup.okhttp3:okhttp:4.12.0'
+	include 'com.squareup.okio:okio-jvm:3.6.0'
+	include 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+	include 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
+	include 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+	include "org.json:json:20230618"
 }
 
 processResources {
@@ -84,6 +95,10 @@ jar {
 	}
 }
 
+remapJar {
+	archiveVersion = "${project.version}+mc${project.minecraft_version}"
+}
+
 // configure the maven publication
 publishing {
 	publications {
@@ -98,5 +113,19 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = "NnYRKjHd"
+	versionNumber = "${project.version}+mc${project.minecraft_version}"
+	versionType = "release"
+	uploadFile = remapJar
+	gameVersions = [project.minecraft_version]
+	loaders = ["fabric", "quilt"]
+	dependencies {
+		required.project "fabric-api"
+		required.project "fabric-language-kotlin"
 	}
 }
