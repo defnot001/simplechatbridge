@@ -3,44 +3,31 @@
 	"id": "simplechatbridge",
 	"version": "${version}",
 	"name": "SimpleChatbridge",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Simple Chatbridge between a Minecraft Server and a Discord Channel",
 	"authors": [
-		"Me!"
+		"defnot001"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/defnot001/simplechatbridge",
+		"sources": "https://github.com/defnot001/simplechatbridge/src"
 	},
 	"license": "MIT",
 	"icon": "assets/simplechatbridge/icon.png",
-	"environment": "*",
+	"environment": "server",
 	"entrypoints": {
 		"main": [
 			{
 				"value": "io.github.defnot001.SimpleChatbridge",
 				"adapter": "kotlin"
 			}
-		],
-		"client": [
-			{
-				"value": "io.github.defnot001.SimpleChatbridgeClient",
-				"adapter": "kotlin"
-			}
 		]
 	},
 	"mixins": [
-		"simplechatbridge.mixins.json",
-		{
-			"config": "simplechatbridge.client.mixins.json",
-			"environment": "client"
-		}
+		"simplechatbridge.mixins.json"
 	],
 	"depends": {
 		"minecraft": "${mcversion}",
-		"fabric-api": "*",
+		"fabric-api": "${fabricversion}",
 		"fabric-language-kotlin": ">=1.9.22"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }
