@@ -44,7 +44,8 @@ dependencies {
 	// These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
 
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
-	implementation(include "net.dv8tion:JDA:5.0.0-beta.19")
+	implementation(include "net.dv8tion:JDA:${project.jda_version}")
+	implementation(include "club.minnced:discord-webhooks:${project.property("discord-webhooks_version")}")
 }
 
 processResources {

@@ -12,13 +12,13 @@ import kotlin.system.exitProcess
 
 class Config {
     @JvmField
-    var botToken: String? = null;
+    var botToken = ""
 
     @JvmField
-    var webhookUrl: String? = null;
+    var webhookUrl = ""
 
     @JvmField
-    var discordChannelID: String? = null;
+    var discordChannelID = ""
 
     companion object {
         private val modConfigDirPath = FabricLoader.getInstance().configDir.resolve(MOD_ID)

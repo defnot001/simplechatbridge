@@ -1,8 +1,12 @@
 package io.github.defnot001
 
+import club.minnced.discord.webhook.WebhookClient
+import club.minnced.discord.webhook.WebhookClientBuilder
+import club.minnced.discord.webhook.send.AllowedMentions
 import com.mojang.logging.LogUtils
 import io.github.defnot001.config.Config
 import io.github.defnot001.discordbot.MessageReceivedListener
+import io.github.defnot001.minecraft.registerStateChangeEvents
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
@@ -18,7 +22,10 @@ val LOGGER: Logger = LogUtils.getLogger()
 
 object SimpleChatbridge : ModInitializer {
 	lateinit var config: Config
-	private lateinit var jda: JDA
+	lateinit var jda: JDA
+		private set
+	lateinit var webhookClient: WebhookClient
+		private set
 
 	override fun onInitialize() {
 		config = Config.loadConfig()
@@ -33,9 +40,14 @@ object SimpleChatbridge : ModInitializer {
 					.build()
 
 			jda.awaitReady()
-
 			LOGGER.info("Successfully initialized Discord Bot.")
+
+			webhookClient = WebhookClientBuilder(config.webhookUrl)
+					.setAllowedMentions(AllowedMentions.none())
+					.build()
 		}
+
+		registerStateChangeEvents()
 
 		ServerLifecycleEvents.SERVER_STOPPING.register {
 			LOGGER.info("Stopping Discord Bot...")
