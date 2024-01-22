@@ -17,19 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerAdvancements.class)
 public class MixinPlayerAdvancements {
-
     @Shadow
     private ServerPlayer player;
 
-    @Inject(method = "award", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
-    private void award(Advancement advancement, String string, CallbackInfoReturnable<Boolean> cir) {
-        if (SimpleChatbridge.config.getSafeBroadcastAdvancements()) {
-            var component = Component.translatable(
-                "chat.type.advancement." + advancement.getDisplay().getFrame().getName(), this.player.getDisplayName(), advancement.getChatComponent()
-            );
     @Inject(method = "method_53637", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     private void award(AdvancementHolder advancementHolder, DisplayInfo displayInfo, CallbackInfo ci) {
-        var component = Component.translatable("chat.type.advancement." + displayInfo.getFrame().getName(), this.player.getDisplayName(), Advancement.name(advancementHolder));
+        if (SimpleChatbridge.config.getSafeBroadcastAdvancements()) {
+            var component = Component.translatable("chat.type.advancement." + displayInfo.getFrame().getName(), this.player.getDisplayName(), Advancement.name(advancementHolder));
 
             GameMessageHandler.INSTANCE.postSystemMessageToDiscord(component.getString());
         }
