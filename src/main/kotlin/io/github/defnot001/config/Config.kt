@@ -24,7 +24,7 @@ class Config {
     var broadcastAdvancements: Boolean? = null
 
     val safeBotToken: String get() = botToken ?: throw IllegalStateException("Missing Discord Bot Token from Config")
-    val safeWebhookUrl: String get() = botToken ?: throw IllegalStateException("Missing Webhook URL from Config")
+    val safeWebhookUrl: String get() = webhookUrl ?: throw IllegalStateException("Missing Webhook URL from Config")
     val safeDiscordChannelID: String get() = discordChannelID ?: throw IllegalStateException("Missing Discord Channel ID from Config")
     val safeBroadcastAdvancements: Boolean get() = broadcastAdvancements ?: throw IllegalStateException("Missing broadcastAdvancements setting from Config")
 
