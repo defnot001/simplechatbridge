@@ -1,5 +1,6 @@
 package io.github.defnot001.mixin;
 
+import io.github.defnot001.SimpleChatbridge;
 import io.github.defnot001.minecraft.GameMessageHandler;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.network.chat.Component;
@@ -19,10 +20,12 @@ public class MixinPlayerAdvancements {
 
     @Inject(method = "award", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     private void award(Advancement advancement, String string, CallbackInfoReturnable<Boolean> cir) {
-        var component =  Component.translatable(
-            "chat.type.advancement." + advancement.getDisplay().getFrame().getName(), this.player.getDisplayName(), advancement.getChatComponent()
-        );
+        if (SimpleChatbridge.config.getSafeBroadcastAdvancements()) {
+            var component = Component.translatable(
+                "chat.type.advancement." + advancement.getDisplay().getFrame().getName(), this.player.getDisplayName(), advancement.getChatComponent()
+            );
 
-        GameMessageHandler.INSTANCE.postSystemMessageToDiscord(component.getString());
+            GameMessageHandler.INSTANCE.postSystemMessageToDiscord(component.getString());
+        }
     }
 }
