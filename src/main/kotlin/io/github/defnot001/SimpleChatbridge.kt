@@ -33,7 +33,7 @@ object SimpleChatbridge : ModInitializer {
 
 		ServerLifecycleEvents.SERVER_STARTING.register { server ->
 			jda = JDABuilder
-					.createDefault(config.botToken)
+					.createDefault(config.safeBotToken)
 					.setActivity(Activity.watching("Chatbridges"))
 					.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.MESSAGE_CONTENT)
 					.addEventListeners(MessageReceivedListener(server))
@@ -42,7 +42,7 @@ object SimpleChatbridge : ModInitializer {
 			jda.awaitReady()
 			LOGGER.info("Successfully initialized Discord Bot.")
 
-			webhookClient = WebhookClientBuilder(config.webhookUrl)
+			webhookClient = WebhookClientBuilder(config.safeWebhookUrl)
 					.setAllowedMentions(AllowedMentions.none())
 					.build()
 		}
