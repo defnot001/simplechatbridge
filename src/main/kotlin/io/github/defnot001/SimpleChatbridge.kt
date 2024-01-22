@@ -52,6 +52,7 @@ object SimpleChatbridge : ModInitializer {
 		ServerLifecycleEvents.SERVER_STOPPING.register {
 			LOGGER.info("Stopping Discord Bot...")
 			jda.shutdown()
+			webhookClient.close()
 
 			if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) {
 				LOGGER.warn("Discord Bot did not shutdown within 10 seconds. Forcing shutdown...")
