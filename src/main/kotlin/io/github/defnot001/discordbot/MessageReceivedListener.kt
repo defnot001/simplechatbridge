@@ -14,9 +14,8 @@ import net.minecraft.server.MinecraftServer
 class MessageReceivedListener(private val server: MinecraftServer) : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
-        if (event.channel.id != SimpleChatbridge.config.safeDiscordChannelID) return
+        if (event.channel.id != SimpleChatbridge.config.discordChannelID) return
         if (event.isWebhookMessage) return
-
 
         if (event.message.hasAttachment) {
             sendIngameNotificationAttachment(event.author.name, event.message)
@@ -49,7 +48,7 @@ class MessageReceivedListener(private val server: MinecraftServer) : ListenerAda
     }
 
     private fun formatChatMessage(author: String, content: String): Component {
-        return TextComponent("[")
+        return TextComponent("[").withStyle()
                 .append(TextComponent(author).withStyle { it.withColor(ChatFormatting.GRAY) })
                 .append(TextComponent("] $content"))
     }
