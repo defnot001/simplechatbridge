@@ -48,7 +48,7 @@ class MessageReceivedListener(private val server: MinecraftServer) : ListenerAda
     }
 
     private fun formatChatMessage(author: String, content: String): Component {
-        return TextComponent("[").withStyle()
+        return TextComponent("[")
                 .append(TextComponent(author).withStyle { it.withColor(ChatFormatting.GRAY) })
                 .append(TextComponent("] $content"))
     }
