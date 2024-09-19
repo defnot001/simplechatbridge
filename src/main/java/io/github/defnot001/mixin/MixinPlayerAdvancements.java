@@ -20,7 +20,7 @@ public class MixinPlayerAdvancements {
 
     @Inject(method = "award", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     private void award(Advancement advancement, String string, CallbackInfoReturnable<Boolean> cir) {
-        if (SimpleChatbridge.config.getSafeBroadcastAdvancements()) {
+        if (SimpleChatbridge.config.getBroadcastAdvancements()) {
             var component = Component.translatable(
                 "chat.type.advancement." + advancement.getDisplay().getFrame().getName(), this.player.getDisplayName(), advancement.getChatComponent()
             );
