@@ -1,165 +1,81 @@
 package io.github.defnot001.config
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import io.github.defnot001.LOGGER
 import io.github.defnot001.MOD_ID
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import net.fabricmc.loader.api.FabricLoader
 import java.io.IOException
-import java.nio.file.Files
-import kotlin.reflect.full.memberProperties
-import kotlin.system.exitProcess
+import kotlin.io.path.createDirectories
+import kotlin.io.path.inputStream
+import kotlin.io.path.notExists
+import kotlin.io.path.outputStream
 
-class Config {
-    @JvmField
-    var botToken: String? = null
+@Serializable
+data class Config(
+    val botToken: String = "",
+    val webhookUrl: String = "",
+    var discordChannelID: String = "",
+    var broadcastAdvancements: Boolean = true
+) {
+    fun getMissingFields(): List<String> {
+        val missing = ArrayList<String>()
 
-    @JvmField
-    var webhookUrl: String? = null
+        if (botToken.isBlank()) {
+            missing.add("Missing bot token.")
+        }
+        if (webhookUrl.isBlank()) {
+            missing.add("Missing Discord webhook URL.")
+        }
+        if (discordChannelID.isBlank()) {
+            missing.add("Missing Discord channel ID.")
+        }
+        return missing
+    }
 
-    @JvmField
-    var discordChannelID: String? = null
-
-    @JvmField
-    var broadcastAdvancements: Boolean? = null
-
-    val safeBotToken: String get() = botToken ?: throw IllegalStateException("Missing Discord Bot Token from Config")
-    val safeWebhookUrl: String get() = webhookUrl ?: throw IllegalStateException("Missing Webhook URL from Config")
-    val safeDiscordChannelID: String get() = discordChannelID ?: throw IllegalStateException("Missing Discord Channel ID from Config")
-    val safeBroadcastAdvancements: Boolean get() = broadcastAdvancements ?: throw IllegalStateException("Missing broadcastAdvancements setting from Config")
-
+    @OptIn(ExperimentalSerializationApi::class)
     companion object {
         private val modConfigDirPath = FabricLoader.getInstance().configDir.resolve(MOD_ID)
         private val modConfigFilePath = modConfigDirPath.resolve("$MOD_ID.json")
-        private val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+        private val json = Json {
+            encodeDefaults = true
+            prettyPrint = true
+            prettyPrintIndent = "  "
+        }
 
-        fun loadConfig(): Config {
-            if (!configExists()) {
-                handleMissingConfig()
+        fun read(): Config {
+            if (modConfigFilePath.notExists()) {
+                LOGGER.info("Config not found. Creating a default config.")
+                return Config().also { write(it) }
             }
 
-            val currentConfig = readConfigFromFile()
-
-            checkConfigIntegrity(currentConfig)
-
-            if (!isConfigUpdated(currentConfig)) {
-                LOGGER.info("Updating config with new default fields.")
-                addNewDefaultsToExistingConfig(currentConfig)
-                saveConfig(currentConfig)
-                return currentConfig
-            }
-
-            return currentConfig
-        }
-
-        private fun configExists(): Boolean {
-            return Files.exists(modConfigFilePath)
-        }
-
-        private fun handleMissingConfig() {
-            LOGGER.error("Config file not found. Creating a default config. Please update it before restarting.")
-            createDefaultConfigFile()
-            exitProcess(0)
-        }
-
-
-        private fun readConfigFromFile(): Config {
             return try {
-                Files.newBufferedReader(modConfigFilePath).use { reader ->
-                    Gson().fromJson(reader, Config::class.java)
-                        ?: throw IOException("Failed to parse config file.")
+                modConfigFilePath.inputStream().use { stream ->
+                    json.decodeFromStream<Config>(stream)
                 }
-            } catch (e: IOException) {
-                LOGGER.error("Failed to read the config file.", e)
-                exitProcess(0)
+            } catch (exception: Exception) {
+                // IOException or SerializationException
+                LOGGER.error("Failed to read the config file. Creating a default config.", exception)
+                Config().also { write(it) }
             }
         }
 
-        private fun getDefaultConfigInstance(): Config {
-            return Config().apply {
-                botToken = ""
-                webhookUrl = ""
-                discordChannelID = ""
-                broadcastAdvancements = true
-            }
-        }
-
-        private fun createDefaultConfigFile() {
+        private fun write(config: Config) {
             try {
-                val defaultConfig = getDefaultConfigInstance()
-                val json = gsonPretty.toJson(defaultConfig)
-
-                Files.createDirectories(modConfigDirPath)
-                Files.newBufferedWriter(modConfigFilePath).use { it.write(json) }
-            } catch (e: IOException) {
-                LOGGER.error("Could not create default config file.", e)
-            }
-
-        }
-
-        private fun isConfigUpdated(currentConfig: Config): Boolean {
-            return Config::class.memberProperties.all { property ->
-                property.call(currentConfig) != null
-            }
-        }
-
-        private fun addNewDefaultsToExistingConfig(currentConfig: Config) {
-            val currentConfigJson = Gson().toJsonTree(currentConfig).asJsonObject
-            val defaultConfigJson = Gson().toJsonTree(getDefaultConfigInstance()).asJsonObject
-
-            defaultConfigJson.entrySet().forEach { (key, value) ->
-                if (!currentConfigJson.has(key)) {
-                    currentConfigJson.add(key, value)
+                modConfigDirPath.createDirectories()
+                modConfigFilePath.outputStream().use { stream ->
+                    json.encodeToStream(config, stream)
                 }
-            }
-
-            Gson().fromJson(currentConfigJson, Config::class.java).apply {
-                currentConfig.botToken = this.botToken
-                currentConfig.webhookUrl = this.webhookUrl
-                currentConfig.discordChannelID = this.discordChannelID
-                currentConfig.broadcastAdvancements = this.broadcastAdvancements
+            } catch (exception: IOException) {
+                LOGGER.error("Failed to write config.", exception)
+            } catch (exception: SerializationException) {
+                LOGGER.error("Failed to serialize config.", exception)
             }
         }
-
-        private fun saveConfig(config: Config) {
-            try {
-                Files.newBufferedWriter(modConfigFilePath).use { writer ->
-                    gsonPretty.toJson(config, writer)
-                }
-            } catch (e: IOException) {
-                LOGGER.error("Could not save config file.", e)
-                exitProcess(0)
-            }
-        }
-
-        private fun checkConfigIntegrity(config: Config) {
-            val missingConfigs = mutableListOf<String>()
-
-            if (!config.hasBotToken) {
-                missingConfigs.add("Bot Token")
-                LOGGER.error("Bot Token is missing from the SimpleChatbridge configuration!")
-            }
-
-            if (!config.hasWebhookUrl) {
-                missingConfigs.add("Webhook URL")
-                LOGGER.error("Discord Webhook URL is missing from the SimpleChatbridge configuration!")
-            }
-
-            if (!config.hasDiscordChannelID) {
-                missingConfigs.add("Channel ID")
-                LOGGER.error("Discord Channel ID is missing from the SimpleChatbridge configuration!")
-            }
-
-            if (missingConfigs.isNotEmpty()) {
-                exitProcess(0)
-            }
-        }
-
-        private val Config.hasBotToken get() = !this.botToken.isNullOrEmpty()
-        private val Config.hasWebhookUrl get() = !this.webhookUrl.isNullOrEmpty()
-        private val Config.hasDiscordChannelID get() = !this.discordChannelID.isNullOrEmpty()
-     }
-
-
+    }
 }
 

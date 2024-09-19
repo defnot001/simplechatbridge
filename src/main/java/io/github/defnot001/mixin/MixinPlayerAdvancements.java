@@ -20,7 +20,7 @@ public class MixinPlayerAdvancements {
 
     @Inject(method = "method_53637", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     private void award(AdvancementHolder advancementHolder, DisplayInfo displayInfo, CallbackInfo ci) {
-        if (SimpleChatbridge.config.getSafeBroadcastAdvancements()) {
+        if (SimpleChatbridge.config.getBroadcastAdvancements()) {
             var component = displayInfo.getType().createAnnouncement(advancementHolder, this.player);
 
             GameMessageHandler.INSTANCE.postSystemMessageToDiscord(component.getString());
