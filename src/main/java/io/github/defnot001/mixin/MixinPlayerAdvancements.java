@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerAdvancements.class)
 public class MixinPlayerAdvancements {
@@ -22,7 +21,7 @@ public class MixinPlayerAdvancements {
 
     @Inject(method = "method_53637", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     private void award(AdvancementHolder advancementHolder, DisplayInfo displayInfo, CallbackInfo ci) {
-        if (SimpleChatbridge.config.getSafeBroadcastAdvancements()) {
+        if (SimpleChatbridge.config.getBroadcastAdvancements()) {
             var component = Component.translatable("chat.type.advancement." + displayInfo.getFrame().getName(), this.player.getDisplayName(), Advancement.name(advancementHolder));
 
             GameMessageHandler.INSTANCE.postSystemMessageToDiscord(component.getString());
