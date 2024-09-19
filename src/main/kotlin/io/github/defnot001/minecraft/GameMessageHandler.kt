@@ -7,7 +7,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 object GameMessageHandler {
     fun postSystemMessageToDiscord(message: String) {
-        SimpleChatbridge.webhookClient.send(message)
+        SimpleChatbridge.useBot {
+            webhook.send(message)
+        }
     }
 
     fun registerChatMessageEventListener() {
@@ -17,11 +19,13 @@ object GameMessageHandler {
     }
 
     private fun postChatMessageToDiscord(player: ServerPlayer, message: String) {
-        SimpleChatbridge.webhookClient.send(WebhookMessageBuilder().run {
-            setUsername(player.scoreboardName)
-            setAvatarUrl("https://visage.surgeplay.com/face/256/${player.stringUUID}")
-            setContent(message)
-            build()
-        })
+        SimpleChatbridge.useBot {
+            webhook.send(WebhookMessageBuilder().run {
+                setUsername(player.scoreboardName)
+                setAvatarUrl("https://visage.surgeplay.com/face/256/${player.stringUUID}")
+                setContent(message)
+                build()
+            })
+        }
     }
 }
