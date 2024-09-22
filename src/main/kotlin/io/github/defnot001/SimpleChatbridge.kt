@@ -53,7 +53,7 @@ object SimpleChatbridge : ModInitializer {
 		registerStateChangeEvents()
 		GameMessageHandler.registerChatMessageEventListener()
 
-		ServerLifecycleEvents.SERVER_STOPPING.register {
+		ServerLifecycleEvents.SERVER_STOPPED.register {
 			useBot {
 				LOGGER.info("Stopping Discord Bot...")
 				jda.shutdown()
